@@ -24,6 +24,7 @@ def clean_text(text):
 # new_text = "im so tired"
 # new_text = "pretty good"
 new_text = "I am feeling the best I have felt in weeks"
+new_text = "happy"
 # new_text = "I'm feeling really stressed rn why even is life im so tired lowkey sad"
 new_cleaned = clean_text(new_text)
 new_vector = vectorizer.transform([new_cleaned]).toarray()  # Note: transform, not fit_transform
