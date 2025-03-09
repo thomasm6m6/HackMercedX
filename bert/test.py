@@ -1,21 +1,8 @@
-import pandas as pd
-import nltk
 import sys
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
-import string
 import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
-import joblib
-from sklearn.svm import SVC
 from transformers import DistilBertTokenizer
 import torch
-from torch.utils.data import Dataset
 from transformers import DistilBertForSequenceClassification
-from transformers import TrainingArguments
-from transformers import Trainer
 
 
 model = DistilBertForSequenceClassification.from_pretrained('distilbert_model')

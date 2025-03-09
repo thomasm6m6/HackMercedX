@@ -41,7 +41,7 @@ def clean_text(text):
 sequences['response'] = sequences['response'].apply(clean_text)
 texts = sequences['response'].tolist()
 
-label_map = {'anxiety': 0, 'depression': 1, 'good': 2, 'great': 3}
+label_map = {'anxiety': 0, 'depression': 1, 'great': 2}
 # sequences['label'] = sequences['sequence_label'].map(label_map)
 # texts = sequences['response'].tolist()
 # labels = sequences['label'].tolist()

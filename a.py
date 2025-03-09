@@ -4,6 +4,7 @@ import time
 import random
 import sqlite3
 import re
+import threading
 import base64
 from email.message import EmailMessage
 from email.mime.text import MIMEText
@@ -63,31 +64,6 @@ def extract_name_and_email(from_header):
         return {'name': name.strip() if name else None, 'email': email}
     return {'name': None, 'email': None}
 
-def get_emails():
-    results = service.users().messages().list(userId='me', maxResults=5).execute()
-    messages = results.get('messages', [])
-
-    if not messages:
-        print('No messages found.')
-        return
-
-    for message in messages:
-        msg = service.users().messages().get(userId='me', id=message['id']).execute()
-        headers = msg['payload']['headers']
-        # subject = next(header['value'] for header in headers if header['name'] == 'Subject')
-        from_header = next(header['value'] for header in headers if header['name'] == 'From')
-
-        sender = extract_name_and_email(from_header)
-        from_number = sender['name']
-        from_email = sender['email']
-        if from_email.endswith("@txt.voice.google.com") and "parts" in msg['payload']:
-            print(from_number, from_email)
-            for part in msg['payload']['parts']:
-                if part['mimeType'] == "text/plain":
-                    data = part['body']['data']
-                    text = base64.urlsafe_b64decode(data).decode('utf-8')
-                    print('\n'.join(text.split('\n')[2:-11]), end='\n\n')
-
 def create_message(to, subject, message_text, sender="me"):
     message = MIMEText(message_text)
     message['to'] = to
@@ -139,6 +115,29 @@ service = build('gmail', 'v1', credentials=creds)
 # get_emails()
 # send("14086342733.14083181331.G6t2NKtTdt@txt.voice.google.com", "hi there")
 
+def poll_emails():
+    while True:
+        results = service.users().messages().list(userId='me', maxResults=5).execute()
+        messages = results.get('messages', [])
+        for message in messages:
+            msg = service.users().messages().get(userId='me', id=message['id']).execute()
+            headers = msg['payload']['headers']
+            from_header = next(header['value'] for header in headers if header['name'] == 'From')
+
+            sender = extract_name_and_email(from_header)
+            from_number = sender['name']
+            from_email = sender['email']
+            if from_number is not None and from_email is not None \
+                    and from_email.endswith("@txt.voice.google.com") and "parts" in msg['payload']:
+                print(from_number, from_email)
+                db.add_user(from_number, from_email)
+                for part in msg['payload']['parts']:
+                    if part['mimeType'] == "text/plain":
+                        data = part['body']['data']
+                        text = base64.urlsafe_b64decode(data).decode('utf-8')
+                        print('\n'.join(text.split('\n')[2:-11]), end='\n\n')
+        time.sleep(0.5)
+
 class Database:
     def __init__(self):
         self.conn = sqlite3.connect("messages.db")
@@ -152,6 +151,7 @@ class Database:
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             contact TEXT UNIQUE NOT NULL,
+            gv_email TEXT NOT NULL,
             voice TEXT CHECK(voice IN ('professional', 'sassy')) DEFAULT 'professional'
         );
 
@@ -167,8 +167,8 @@ class Database:
         """)
         self.conn.commit()
 
-    def add_user(self, contact):
-        self.cursor.execute("INSERT INTO users (contact) VALUES (?)", (contact,))
+    def add_user(self, contact, gv_email):
+        self.cursor.execute("INSERT INTO users (contact, gv_email) VALUES (?, ?)", (contact, gv_email))
         self.conn.commit()
 
     def add_message(self, contact, message):
@@ -276,9 +276,12 @@ def get_daily_message():
     )
     return query(prompt)
 
-def main():
-    db = Database()
-    db.create()
+db = Database()
+db.create()
+
+thread = threading.Thread(target=poll_emails)
+thread.start()
+
     # db.add_user("+14083181331")
     # send_message()
     # user_resp = input("Your response:")
@@ -288,14 +291,10 @@ def main():
     # print()
     # print("Messages for +14083181331:", db.get_messages("+14083181331"))
 
-    print(intro_message)
-    for i in range(10):
-        print(get_daily_message())
-        print()
-
-
-if __name__ == "__main__":
-    main()
+print(intro_message)
+for i in range(10):
+    print(get_daily_message())
+    print()
 
 
 """
