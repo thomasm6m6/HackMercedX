@@ -481,7 +481,7 @@ test_data = [
 
 count = 0
 for response in test_data:
-    output = subprocess.check_output(["python3", "test_bert.py", response['response']])
+    output = subprocess.check_output(["python3", "bert/test.py", response['response']])
     output = output.decode().split('\n')[0].strip()
     if output == response['emotion']:
         continue

@@ -481,7 +481,7 @@ test_data = [
 
 count = 0
 for response in test_data:
-    output = subprocess.check_output(["python3", "test_gemini.py", response['response']])
+    output = subprocess.check_output(["python3", "gemini/test.py", response['response']])
     output = output.decode().strip()
     if output == response['emotion']:
         continue
