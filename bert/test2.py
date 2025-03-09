@@ -481,14 +481,14 @@ test_data = [
 
 count = 0
 for response in test_data:
-    output = subprocess.check_output(["python3", "test.py", response['response']])
-    output = output.decode().strip()
+    output = subprocess.check_output(["python3", "test_bert.py", response['response']])
+    output = output.decode().split('\n')[0].strip()
     if output == response['emotion']:
         continue
     if response['emotion'] == "neither":
-        if output in ["neutral", "good", "great"]:
+        if output in ["good", "great"]:
             continue
     print(output, response)
     count += 1
 
-print(f"\nSuccess rate: {round((1-count/len(test_data))*100)}%")
+print(f"\nSuccess rate: {((1-count/len(test_data))*100)}%")

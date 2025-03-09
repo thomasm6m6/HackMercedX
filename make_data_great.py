@@ -33,21 +33,14 @@ def generate_schedules(limit):
             schedules.append(schedule)
     return schedules
 
-schedules = generate_schedules(400)[:400]
+schedules = generate_schedules(400)[:100]
 
 # print(len(schedules))
 
 prompts = []
 
 for i, schedule in enumerate(schedules):
-    if i < 100:
-        string = "Generate a response that is slightly indicative of anxiety to each of the following questions."
-    elif i < 200:
-        string = "Generate a response that is slightly indicative of depression to each of the following questions."
-    elif i < 300:
-        string = "Generate a response that is slightly indicative of both anxiety and depression to each of the following questions."
-    else:
-        string = "Generate a neutral response that is indicative of neither anxiety nor depression to each of the following questions."
+    string = "Generate a response that is indicative of a person of excellent mental health, to each of the following questions."
 
     string += "\nOutput only your responses to each question, prefixed by the question number."
     random_schedule = random.sample(schedule, k=len(schedule))
@@ -65,7 +58,7 @@ def query(prompt):
         model="gemini-2.0-flash",
         n=1,
         messages=[
-            {"role": "system", "content": "You emulate a human who is texting with a digital mental health assistant. Make your responses normal, NOT over the top."},
+            {"role": "system", "content": "You emulate a human who is texting with a digital mental health assistant. Make your responses normal."},
             {"role": "user", "content": prompt}
         ]
     )
@@ -74,20 +67,15 @@ def query(prompt):
 
 data = []
 for i, prompt in enumerate(prompts):
-    try:
-        response = query(prompt)
-    except Exception as e:
-        print(f"Waiting due to error: {e}")
-        time.sleep(2)
+    while True:
+        try:
+            response = query(prompt)
+            break
+        except Exception as e:
+            print(f"Waiting due to error: {e}")
+            time.sleep(2)
 
-    if i < 100:
-        msg_type = "anxiety"
-    elif i < 200:
-        msg_type = "depression"
-    elif i < 300:
-        msg_type = "anxiety+depression"
-    else:
-        msg_type = "neutral"
+    msg_type = "great"
 
     data.append({
         "type": msg_type,
@@ -97,5 +85,5 @@ for i, prompt in enumerate(prompts):
     print(data[len(data)-1])
     time.sleep(1)
 
-with open("responses.json", 'w') as f:
+with open("responses/great.json", 'w') as f:
     json.dump(data, f)

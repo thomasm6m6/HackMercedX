@@ -2,6 +2,10 @@ import os
 import sqlite3
 from openai import OpenAI
 
+# TODO: initialize database and selenium, load model into memory
+# TODO: gemini prompts
+# TODO: make gvoice work
+
 client = OpenAI(
     base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
     api_key=os.environ["GEMINI_API_KEY"]
@@ -12,6 +16,7 @@ You are MoodMed, an AI assistant that helps the user with medical issues.
 You are NOT a doctor, and cannot give formal medical advice. You remind the user of this if they ask for it.
 """
 
+# TODO I'm thinking maybe suggest a particular existing style for it to adopt for sassy, e.g. punk teenager or something
 prompts = {
     "professional": f"""
 {base_prompt}
@@ -111,3 +116,21 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+"""
+flow:
+- user texts the number
+- user is added to database
+- LLM responds:
+  - welcomes user (with the context of the user's initial message, to respond to it if appropriate)
+  - informs them that they've been subscribed and can send a message requesting to unsubscribe at any time
+- I press a button, triggering a new "day", the LLM sends a message asking two of the 7 questions
+- if user does not respond in several hours, send a reminder
+- once user responds, analyze response to decide if it signals anxiety/depression
+- add message and analysis to database
+- send a message back to the user
+  - if no anxiety/depression, just something like "have a nice day!"
+  - if anxiety/depression, point this out, maybe subtly e.g. "make sure to get some rest"
+  - if anxiety/depression for several days in a row, suggest seeking care
+"""
