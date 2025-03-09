@@ -1,6 +1,6 @@
 # MoodMed
 
-Current success rate: 86%
+Current success rate: 87%
 
 Gemini API: 94%
 
