@@ -1,5 +1,11 @@
 # MoodMed
 
+This project was written over the course of 36 hours for HackMerced X, March 2025.
+
+d.py is the updated version of the code; a.py is an old version.
+
+---
+
 Current success rate: 87%
 
 Gemini API: 94%
