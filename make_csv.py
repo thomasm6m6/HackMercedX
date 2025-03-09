@@ -1,7 +1,8 @@
-# python3 make_csv.py >responses.tsv
+# python3 make_csv.py responses.json >responses.tsv
 import json
+import sys
 
-with open("responses.json") as f:
+with open(sys.argv[1]) as f:
     data = json.load(f)
 
 print("user_id\tquestion\tresponse\tsequence_label\n")
